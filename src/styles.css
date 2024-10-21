@@ -1,0 +1,264 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+select {
+  height: 32px;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+input,
+label,
+select,
+textarea {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+}
+
+input,
+textarea,
+select {
+  padding: 4px 8px;
+  border: 1px solid black;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+ol,
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#root,
+#__next {
+  isolation: isolate;
+}
+
+:root {
+  --side-bar-main-color: #f0e8d1;
+  --text-main-color: #0d1b1e;
+  --text-accent-color: #f05d23;
+}
+
+body {
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+  height: 100vh;
+  color: var(--text-main-color);
+}
+
+.side-bar {
+  background-color: var(--side-bar-main-color);
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  font-size: 20px;
+}
+
+.project-add-button {
+  border: none;
+  border-radius: 8px;
+  font-size: 20px;
+  background-color: var(--side-bar-main-color);
+  text-align: start;
+  color: var(--text-accent-color);
+}
+
+dialog {
+  border: none;
+  border-radius: 16px;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  padding: 16px;
+  margin: auto;
+  margin-top: 250px;
+  width: 450px;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: #00000010;
+}
+
+dialog button {
+  background-color: white;
+  border: 1px solid black;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+select option:hover {
+  box-shadow: 0 0 10px 100px red inset !important;
+  color: white;
+}
+
+.cancel-btn {
+  border: 2px solid red;
+}
+
+.cancel-btn:hover {
+  background-color: red;
+}
+
+.confirm-btn {
+  border: 2px solid #00c000;
+}
+
+.confirm-btn:hover {
+  background-color: #00c000;
+}
+
+.flex {
+  display: flex;
+  /* gap: 16px; */
+  align-items: center;
+}
+
+.icon-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.projects-div {
+  display: flex;
+  flex-direction: column;
+}
+
+.project-div {
+  text-align: start;
+  padding: 0px 8px;
+  border-radius: 8px;
+}
+
+.project-div:hover {
+  cursor: pointer;
+  background-color: #00000010;
+}
+
+.plus-icon {
+  width: 24px;
+  height: 24px;
+  background-image: url("./assets/plus.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin: 0 4px;
+}
+
+.grid-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 6fr 1fr;
+}
+
+.content {
+  padding: 16px;
+  grid-column: 2 / 3;
+}
+
+.project-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.task {
+  padding: 8px;
+  display: flex;
+  flex-basis: 100%;
+  flex-direction: column;
+  border-bottom: 2px #676a6730 solid;
+}
+
+.task-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.detail-title {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.priority-div {
+  width: 16px;
+  height: 16px;
+  margin: 0 4px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  position: relative;
+}
+
+.priority-div .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #00000090;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 4px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  top: 20px;
+  left: 105%;
+}
+
+.priority-div:hover .tooltiptext {
+  visibility: visible;
+}
+
+.high {
+  background-image: url("./assets/high.png");
+}
+
+.medium {
+  background-image: url("./assets/medium.png");
+}
