@@ -1,11 +1,12 @@
 import Project from "./Project";
 import Storage from "./Storage";
+import Task from "./Task";
 
 export default class ScreenController {
   static loadHomepage() {
     this.displayProjects();
-    // const addProjectButton = document.querySelector(".project-add-button");
     this.initAddProjectModal();
+    this.initAddTaskModal();
   }
 
   static displayProjects() {
@@ -44,72 +45,133 @@ export default class ScreenController {
   }
 
   static displayContent(event) {
+    this.selectProject(event.target);
     const selectedProject = Storage.getProject(event.target.dataset.index);
     this.displayProjectDetail(selectedProject);
   }
 
-  static initAddProjectModal() {
-    const dialog = document.createElement("dialog");
+  static selectProject(selectedProject) {
+    const projects = document.querySelectorAll(".project-div");
+    projects.forEach((project) => {
+      project.classList.remove("selected");
+    });
+    selectedProject.classList.add("selected");
+  }
 
-    dialog.innerHTML = `
+  static initAddProjectModal() {
+    const addProjectDialog = document.createElement("dialog");
+
+    addProjectDialog.innerHTML = `
       <form> 
           <label>
             Project name
           <input id="project-name" required></input>
           </label>
         <div>
-          <button class="cancel-btn" type="reset" value="cancel" formmethod="dialog">Cancel</button>
+          <button class="add-project-cancel-btn" type="reset" value="cancel" formmethod="dialog">Cancel</button>
           <button id="confirmBtn" type="submit" class="confirm-btn" value="default">Confirm</button>
         </div>
       </form>`;
 
-    const contentDiv = document.querySelector(".content");
+    const body = document.querySelector("body");
 
-    contentDiv.appendChild(dialog);
+    body.appendChild(addProjectDialog);
 
-    const closeButton = document.querySelector(".cancel-btn");
+    const closeButton = document.querySelector(".add-project-cancel-btn");
     closeButton.addEventListener("click", () => {
-      dialog.close();
+      addProjectDialog.close();
     });
 
     const submitButton = document.querySelector(".confirm-btn");
     submitButton.addEventListener("click", (event) => {
       event.preventDefault();
       this.createProject();
-      dialog.close();
+      addProjectDialog.close();
       this.displayProjects();
     });
 
     const addProjectButton = document.querySelector(".project-add-button");
 
-    // "Show the dialog" button opens the dialog modally
     addProjectButton.addEventListener("click", () => {
-      dialog.showModal();
+      addProjectDialog.showModal();
     });
 
-    // "Close" button closes the dialog
     closeButton.addEventListener("click", () => {
-      dialog.close();
+      addProjectDialog.close();
+    });
+  }
+
+  static initAddTaskModal() {
+    const addTaskDialog = document.createElement("dialog");
+    addTaskDialog.classList.add("task-dialog");
+
+    addTaskDialog.innerHTML = `
+      <form>
+        <label>
+          Task title
+          <input id="task-title" required></input>
+        </label>
+        <label>
+          Description
+          <textarea id="task-desc"></textarea>
+        </label>
+        <div class="flex">
+          <label>
+            Priority
+            <select id="task-prio">
+              <option value="high">High</option>
+              <option value="medium" selected="selected">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </label>
+          <label>
+            Due To
+          <input id="task-due" type="date"></input>
+          </label>
+          </div>
+        <div>
+          <button class="add-task-cancel-btn" type="reset" value="cancel" formmethod="dialog">Cancel</button>
+          <button id="taskConfirmBtn" type="submit" class="confirm-btn" value="default">Confirm</button>
+        </div>
+      </form>`;
+
+    const body = document.querySelector("body");
+
+    body.appendChild(addTaskDialog);
+
+    const closeButton = document.querySelector(".add-task-cancel-btn");
+    closeButton.addEventListener("click", () => {
+      addTaskDialog.close();
+    });
+
+    const submitButton = document.querySelector("#taskConfirmBtn");
+    submitButton.addEventListener("click", (event) => {
+      const currentProject = document.querySelector(".selected");
+
+      event.preventDefault();
+      this.createTask();
+      addTaskDialog.close();
+      const selectedProject = Storage.getProject(currentProject.dataset.index);
+      this.displayProjectDetail(selectedProject);
     });
   }
 
   static displayProjectDetail(project) {
-    console.log(project);
     const contentDiv = document.querySelector(".content");
     const projectDetailDiv = document.createElement("div");
     projectDetailDiv.classList.add("project-detail");
     contentDiv.innerHTML = "";
     const projectTitleDiv = document.createElement("div");
     const projectTitleInput = document.createElement("input");
-    const addTaskDiv = document.createElement("div");
-    const tasksDiv = document.createElement("div");
 
     projectTitleInput.value = project.title;
+    projectTitleInput.classList.add("project-title-input");
     projectTitleDiv.appendChild(projectTitleInput);
     contentDiv.appendChild(projectTitleDiv);
 
+    contentDiv.appendChild(this.renderAddButton("task"));
+
     for (let i in project.tasks) {
-      // const contentDiv = document.querySelector(".content");
       const currentTask = this.renderTask(project.tasks[i]);
       projectDetailDiv.appendChild(currentTask);
     }
@@ -117,75 +179,49 @@ export default class ScreenController {
     contentDiv.appendChild(projectDetailDiv);
   }
 
-  // static addTaskModal() {
-  //   const dialog = document.createElement("dialog");
-
-  //   dialog.innerHTML = `
-  //     <form>
-  //         <label>
-  //           Project name
-  //         <input id="project-name" required></input>
-  //         </label>
-  //         <label>
-  //           Description
-  //         <textarea id="project-desc"></textarea>
-  //         </label>
-  //         <div class="flex">
-  //         <label>
-  //           Priority
-  //           <select id="project-prio">
-  //             <option>High</option>
-  //             <option selected="selected">Medium</option>
-  //             <option>Low</option>
-  //           </select>
-  //         </label>
-  //         <label>
-  //           Due To
-  //         <input id="project-due" type="date"></input>
-  //         </label>
-  //         </div>
-  //       <div>
-  //         <button class="cancel-btn" type="reset" value="cancel" formmethod="dialog">Cancel</button>
-  //         <button id="confirmBtn" type="submit" class="confirm-btn" value="default">Confirm</button>
-  //       </div>
-  //     </form>`;
-
-  //   const contentDiv = document.querySelector(".content");
-
-  //   contentDiv.appendChild(dialog);
-
-  //   const closeButton = document.querySelector(".cancel-btn");
-  //   closeButton.addEventListener("click", () => {
-  //     dialog.close();
-  //   });
-
-  //   const submitButton = document.querySelector(".confirm-btn");
-  //   submitButton.addEventListener("click", (event) => {
-  //     console.log("submit pressed");
-  //     event.preventDefault();
-  //     console.log("prevented");
-  //     this.createProject();
-  //     console.log("create project");
-  //     dialog.close();
-  //   });
-
-  //   const addProjectButton = document.querySelector(".project-add-button");
-
-  //   // "Show the dialog" button opens the dialog modally
-  //   addProjectButton.addEventListener("click", () => {
-  //     dialog.showModal();
-  //   });
-
-  //   // "Close" button closes the dialog
-  //   closeButton.addEventListener("click", () => {
-  //     dialog.close();
-  //   });
-  // }
-
   static createProject() {
     const projectTitleInput = document.querySelector("#project-name");
     const newProject = new Project(projectTitleInput.value);
     Storage.storeProject(newProject);
+  }
+
+  static renderAddButton(type) {
+    const addTaskIcon = document.createElement("div");
+    const addTaskButton = document.createElement("button");
+    const addTaskButtonText = document.createElement("div");
+    const addTaskDialog = document.querySelector(".task-dialog");
+
+    // addTaskDiv.classList.add(`${type}-add-button-div`);
+    addTaskIcon.classList.add("plus-icon");
+    addTaskButton.classList.add("add-task-button");
+
+    addTaskButtonText.textContent = "Add Task";
+
+    addTaskButton.appendChild(addTaskIcon);
+    addTaskButton.appendChild(addTaskButtonText);
+
+    addTaskButton.addEventListener("click", () => {
+      addTaskDialog.showModal();
+    });
+
+    return addTaskButton;
+  }
+
+  static createTask() {
+    const selectedProject = document.querySelector(".selected");
+
+    const taskTitleInput = document.querySelector("#task-title");
+    const taskDescritpionInput = document.querySelector("#task-desc");
+    const taskPriorityInput = document.querySelector("#task-prio");
+    const taskDueInput = document.querySelector("#task-due");
+    const newTask = new Task(
+      taskTitleInput.value,
+      taskDescritpionInput.value,
+      taskDueInput.value,
+      taskPriorityInput.value
+    );
+    Storage.storeTask(selectedProject.dataset.index, newTask);
+    this.displayProjectDetail(selectedProject);
   }
 
   static renderTask(task) {

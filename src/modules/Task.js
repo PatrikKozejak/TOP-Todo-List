@@ -6,7 +6,7 @@ export default class Task {
     this.priority = priority;
   }
 
-  geTitle() {
+  getTitle() {
     return this.title;
   }
 
@@ -14,7 +14,7 @@ export default class Task {
     return this.description;
   }
 
-  geDueDate() {
+  getDueDate() {
     return this.dueDate;
   }
 

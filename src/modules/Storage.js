@@ -15,4 +15,10 @@ export default class Storage {
     projects.push(newProject);
     localStorage.setItem("projects", JSON.stringify(projects));
   }
+
+  static storeTask(projectIndex, newTask) {
+    const projects = this.getProjects();
+    projects[projectIndex].tasks.push(newTask);
+    localStorage.setItem("projects", JSON.stringify(projects));
+  }
 }
