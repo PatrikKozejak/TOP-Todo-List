@@ -62,7 +62,7 @@ export default class ScreenController {
     const addProjectDialog = document.createElement("dialog");
 
     addProjectDialog.innerHTML = `
-      <form> 
+      <form id="addProject"> 
           <label>
             Project name
           <input id="project-name" required></input>
@@ -86,6 +86,7 @@ export default class ScreenController {
     submitButton.addEventListener("click", (event) => {
       event.preventDefault();
       this.createProject();
+      document.getElementById("addProject").reset();
       addProjectDialog.close();
       this.displayProjects();
     });
@@ -106,7 +107,7 @@ export default class ScreenController {
     addTaskDialog.classList.add("task-dialog");
 
     addTaskDialog.innerHTML = `
-      <form>
+      <form id="addTask">
         <label>
           Task title
           <input id="task-title" required></input>
@@ -150,6 +151,7 @@ export default class ScreenController {
 
       event.preventDefault();
       this.createTask();
+      document.getElementById("addTask").reset();
       addTaskDialog.close();
       const selectedProject = Storage.getProject(currentProject.dataset.index);
       this.displayProjectDetail(selectedProject);
@@ -173,6 +175,7 @@ export default class ScreenController {
 
     for (let i in project.tasks) {
       const currentTask = this.renderTask(project.tasks[i]);
+      currentTask.dataset.index = i;
       projectDetailDiv.appendChild(currentTask);
     }
 
@@ -191,7 +194,6 @@ export default class ScreenController {
     const addTaskButtonText = document.createElement("div");
     const addTaskDialog = document.querySelector(".task-dialog");
 
-    // addTaskDiv.classList.add(`${type}-add-button-div`);
     addTaskIcon.classList.add("plus-icon");
     addTaskButton.classList.add("add-task-button");
 
@@ -226,10 +228,28 @@ export default class ScreenController {
 
   static renderTask(task) {
     const taskDiv = document.createElement("div");
+    const taskBody = document.createElement("div");
+    const taskDoneLabel = document.createElement("label");
+    const taskCheckboxDone = document.createElement("input");
     const taskTitle = document.createElement("h2");
-    const descriptionDiv = document.createElement("h3");
+    const descriptionDiv = document.createElement("p");
     const dueDateDiv = document.createElement("div");
     const priorityDiv = document.createElement("div");
+    const taskDeleteButton = document.createElement("button");
+    const taskDeleteIcon = document.createElement("div");
+
+    taskBody.classList.add("task-body");
+
+    taskDoneLabel.textContent = "";
+    taskDoneLabel.appendChild(taskCheckboxDone);
+    taskCheckboxDone.setAttribute("type", "checkbox");
+    taskCheckboxDone.classList.add("task-done");
+
+    taskDeleteButton.classList.add("task-delete");
+    taskDeleteIcon.classList.add("task-delete-icon");
+
+    descriptionDiv.classList.add("task-description");
+    dueDateDiv.classList.add("task-due");
 
     const priorityTooltip = document.createElement("span");
     priorityTooltip.textContent = `${task.priority} priority`;
@@ -249,12 +269,30 @@ export default class ScreenController {
     taskTitle.textContent = task.title;
     descriptionDiv.textContent = task.description;
     dueDateDiv.textContent = task.dueDate;
-    // priorityDiv.textContent = task.priority;
 
-    taskDiv.appendChild(titleWrapper);
-    taskDiv.appendChild(descriptionDiv);
-    taskDiv.appendChild(dueDateDiv);
+    taskDeleteButton.addEventListener("click", () => {
+      const taskIndex = taskDeleteButton.parentElement.dataset.index;
+      this.deleteTask(taskIndex);
+    });
+
+    taskDeleteButton.appendChild(taskDeleteIcon);
+
+    taskBody.appendChild(titleWrapper);
+    taskBody.appendChild(descriptionDiv);
+    taskBody.appendChild(dueDateDiv);
+
+    taskDiv.appendChild(taskCheckboxDone);
+    taskDiv.appendChild(taskBody);
+    taskDiv.appendChild(taskDeleteButton);
 
     return taskDiv;
+  }
+
+  static deleteTask(taskIndex) {
+    const currentProject = document.querySelector(".selected");
+    const projectIndex = currentProject.dataset.index;
+
+    Storage.deleteTask(projectIndex, taskIndex);
+    this.displayProjectDetail(Storage.getProject(projectIndex));
   }
 }

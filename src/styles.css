@@ -101,6 +101,7 @@ body {
   text-align: start;
   color: var(--text-accent-color);
   width: 100%;
+  margin: 12px 0px 20px 0px;
 }
 
 dialog {
@@ -160,7 +161,6 @@ select option:hover {
 
 .flex {
   display: flex;
-  /* gap: 16px; */
   align-items: center;
 }
 
@@ -215,16 +215,23 @@ select option:hover {
 }
 
 .task {
+  color: #00000090;
   padding: 8px;
   display: flex;
   flex-basis: 100%;
-  flex-direction: column;
   border-bottom: 2px #676a6730 solid;
 }
 
 .task-wrapper {
+  color: #000000;
   display: flex;
+  gap: 8px;
   align-items: center;
+}
+
+.task-description,
+.task-due {
+  font-size: 20px;
 }
 
 .detail-title {
@@ -269,6 +276,10 @@ select option:hover {
   background-image: url("./assets/medium.png");
 }
 
+.low {
+  background-image: url("./assets/low.png");
+}
+
 .project-title-input {
   font-size: 32px;
   height: 40px;
@@ -308,4 +319,45 @@ select option:hover {
 
 .add-task-button:hover {
   background-color: var(--side-bar-main-color);
+}
+
+.task-body {
+  width: 100%;
+}
+
+.task-done {
+  width: auto;
+  margin: 8px;
+}
+
+.task-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border: none;
+  width: 36px;
+  border-radius: 4px;
+  padding: 0px;
+}
+
+.task-delete-icon {
+  background-image: url("./assets/delete-closed.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 27px;
+  height: 27px;
+}
+
+.task-delete:hover {
+  background-color: #ff000095;
+}
+
+.task-delete:hover .task-delete-icon {
+  background-image: url("./assets/delete-open.png");
+  width: 28px;
+  height: 28px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  border: none;
 }

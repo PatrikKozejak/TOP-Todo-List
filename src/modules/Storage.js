@@ -21,4 +21,10 @@ export default class Storage {
     projects[projectIndex].tasks.push(newTask);
     localStorage.setItem("projects", JSON.stringify(projects));
   }
+
+  static deleteTask(projectIndex, taskIndex) {
+    const projects = this.getProjects();
+    projects[projectIndex].tasks.splice(taskIndex, 1);
+    localStorage.setItem("projects", JSON.stringify(projects));
+  }
 }
