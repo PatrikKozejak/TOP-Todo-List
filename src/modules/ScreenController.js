@@ -11,14 +11,12 @@ export default class ScreenController {
 
   static displayProjects() {
     const projectsDiv = document.querySelector(".projects-div");
-    const contentDiv = document.querySelector(".content");
     const projects = JSON.parse(localStorage.getItem("projects"));
 
     projectsDiv.innerHTML = "";
 
     for (let i in projects) {
       const projectDiv = document.createElement("div");
-      // const projectTitle = document.createElement("p");
       const todoListDiv = document.createElement("div");
       const todoList = document.createElement("ul");
 
@@ -26,9 +24,7 @@ export default class ScreenController {
       projectDiv.dataset.index = i;
 
       projectDiv.textContent = `#  ${projects[i].title}`;
-      // this.displayTaskPreview(projects[i], todoList);
 
-      // projectDiv.appendChild(projectTitle);
       todoListDiv.appendChild(todoList);
       projectDiv.appendChild(todoListDiv);
       projectsDiv.appendChild(projectDiv);
@@ -229,8 +225,9 @@ export default class ScreenController {
   static renderTask(task) {
     const taskDiv = document.createElement("div");
     const taskBody = document.createElement("div");
-    const taskDoneLabel = document.createElement("label");
-    const taskCheckboxDone = document.createElement("input");
+    const taskCheckboxLabel = document.createElement("label");
+    const taskCheckbox = document.createElement("input");
+    const taskCheckmark = document.createElement("span");
     const taskTitle = document.createElement("h2");
     const descriptionDiv = document.createElement("p");
     const dueDateDiv = document.createElement("div");
@@ -240,10 +237,23 @@ export default class ScreenController {
 
     taskBody.classList.add("task-body");
 
-    taskDoneLabel.textContent = "";
-    taskDoneLabel.appendChild(taskCheckboxDone);
-    taskCheckboxDone.setAttribute("type", "checkbox");
-    taskCheckboxDone.classList.add("task-done");
+    taskCheckboxLabel.textContent = "";
+    taskCheckboxLabel.classList.add("container");
+    taskCheckboxLabel.appendChild(taskCheckbox);
+    taskCheckbox.setAttribute("type", "checkbox");
+    taskCheckbox.classList.add("task-done");
+
+    taskCheckbox.addEventListener("change", () => {
+      const parentTask = taskCheckbox.parentElement.parentElement;
+      if (taskCheckbox.checked) {
+        parentTask.classList.add("task-done");
+      } else {
+        parentTask.classList.remove("task-done");
+      }
+    });
+
+    taskCheckmark.classList.add("checkmark");
+    taskCheckboxLabel.appendChild(taskCheckmark);
 
     taskDeleteButton.classList.add("task-delete");
     taskDeleteIcon.classList.add("task-delete-icon");
@@ -281,7 +291,7 @@ export default class ScreenController {
     taskBody.appendChild(descriptionDiv);
     taskBody.appendChild(dueDateDiv);
 
-    taskDiv.appendChild(taskCheckboxDone);
+    taskDiv.appendChild(taskCheckboxLabel);
     taskDiv.appendChild(taskBody);
     taskDiv.appendChild(taskDeleteButton);
 
