@@ -4,9 +4,36 @@ import Task from "./Task";
 
 export default class ScreenController {
   static loadHomepage() {
-    this.displayProjects();
+    this.createDemoProject();
     this.initAddProjectModal();
     this.initAddTaskModal();
+  }
+
+  static createDemoProject() {
+    Storage.clearStorage();
+    const demoProject = new Project("New Project");
+    const demoTask1 = new Task(
+      "First Task",
+      "Task Description",
+      "2025-01-31",
+      "high"
+    );
+    const demoTask2 = new Task(
+      "Second Task",
+      "Task Description too",
+      "2024-12-24",
+      "medium"
+    );
+
+    demoProject.addTask(demoTask1);
+    demoProject.addTask(demoTask2);
+
+    Storage.storeProject(demoProject);
+
+    this.displayProjects();
+    const demoProjectDiv = document.querySelector('div[data-index="0"]');
+    this.selectProject(demoProjectDiv);
+    this.displayProjectDetail(demoProject);
   }
 
   static displayProjects() {
@@ -210,6 +237,10 @@ export default class ScreenController {
 
     return addTaskButton;
   }
+
+  // static selectProject(projectIndex) {
+  //   const projectToSelect = document.querySelector("div");
+  // }
 
   static storeTask() {
     const selectedProject = document.querySelector(".selected");

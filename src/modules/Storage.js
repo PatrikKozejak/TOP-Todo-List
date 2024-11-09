@@ -44,4 +44,8 @@ export default class Storage {
     projects[projectIndex].tasks.splice(taskIndex, 1);
     localStorage.setItem("projects", JSON.stringify(projects));
   }
+
+  static clearStorage() {
+    localStorage.clear();
+  }
 }
