@@ -164,6 +164,12 @@ export default class ScreenController {
 
     projectTitleInput.value = project.title;
     projectTitleInput.classList.add("project-title-input");
+
+    projectTitleInput.addEventListener(
+      "focusout",
+      this.editProjectTitle.bind(this)
+    );
+
     projectTitleDiv.appendChild(projectTitleInput);
     contentDiv.appendChild(projectTitleDiv);
 
@@ -262,7 +268,7 @@ export default class ScreenController {
     taskCheckboxLabel.appendChild(taskCheckmark);
 
     taskTitle.classList.add("task-title");
-    taskTitle.addEventListener("focusout", this.editTaskTitle);
+    taskTitle.addEventListener("focusout", this.editTaskTitle.bind(this));
 
     taskDescription.classList.add("task-description");
     taskDescription.addEventListener("focusout", this.editTaskDescription);
@@ -336,6 +342,19 @@ export default class ScreenController {
     taskDiv.appendChild(taskDeleteButton);
 
     return taskDiv;
+  }
+
+  static editProjectTitle(event) {
+    const currentProject = document.querySelector(".selected");
+    const projectIndex = currentProject.dataset.index;
+    const newTitle = event.target.value;
+
+    const project = Storage.getProject(projectIndex);
+
+    project.title = newTitle;
+
+    Storage.editProject(projectIndex, project);
+    this.displayProjects();
   }
 
   static editTaskTitle(event) {
