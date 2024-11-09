@@ -146,7 +146,7 @@ export default class ScreenController {
       const currentProject = document.querySelector(".selected");
 
       event.preventDefault();
-      this.createTask();
+      this.storeTask();
       document.getElementById("addTask").reset();
       addTaskDialog.close();
       const selectedProject = Storage.getProject(currentProject.dataset.index);
@@ -167,10 +167,10 @@ export default class ScreenController {
     projectTitleDiv.appendChild(projectTitleInput);
     contentDiv.appendChild(projectTitleDiv);
 
-    contentDiv.appendChild(this.renderAddButton("task"));
+    contentDiv.appendChild(this.createAddButton("task"));
 
     for (let i in project.tasks) {
-      const currentTask = this.renderTask(project.tasks[i]);
+      const currentTask = this.createTask(project.tasks[i]);
       currentTask.dataset.index = i;
       projectDetailDiv.appendChild(currentTask);
     }
@@ -184,7 +184,7 @@ export default class ScreenController {
     Storage.storeProject(newProject);
   }
 
-  static renderAddButton(type) {
+  static createAddButton() {
     const addTaskIcon = document.createElement("div");
     const addTaskButton = document.createElement("button");
     const addTaskButtonText = document.createElement("div");
@@ -205,7 +205,7 @@ export default class ScreenController {
     return addTaskButton;
   }
 
-  static createTask() {
+  static storeTask() {
     const selectedProject = document.querySelector(".selected");
 
     const taskTitleInput = document.querySelector("#task-title");
@@ -222,16 +222,22 @@ export default class ScreenController {
     this.displayProjectDetail(selectedProject);
   }
 
-  static renderTask(task) {
+  static createTask(task) {
     const taskDiv = document.createElement("div");
     const taskBody = document.createElement("div");
     const taskCheckboxLabel = document.createElement("label");
     const taskCheckbox = document.createElement("input");
     const taskCheckmark = document.createElement("span");
-    const taskTitle = document.createElement("h2");
-    const descriptionDiv = document.createElement("p");
-    const dueDateDiv = document.createElement("div");
-    const priorityDiv = document.createElement("div");
+    const taskTitle = document.createElement("input");
+    const taskDescriptionDiv = document.createElement("div");
+    const taskDescription = document.createElement("input");
+    const taskDueDateDiv = document.createElement("div");
+    const taskDueDate = document.createElement("input");
+    const taskPriority = document.createElement("div");
+    const taskPrioritySelect = document.createElement("select");
+    const taskLowPriorityOption = document.createElement("option");
+    const taskMidPriorityOption = document.createElement("option");
+    const taskHighPriorityOption = document.createElement("option");
     const taskDeleteButton = document.createElement("button");
     const taskDeleteIcon = document.createElement("div");
 
@@ -255,30 +261,64 @@ export default class ScreenController {
     taskCheckmark.classList.add("checkmark");
     taskCheckboxLabel.appendChild(taskCheckmark);
 
+    taskTitle.classList.add("task-title");
+    taskTitle.addEventListener("focusout", this.editTaskTitle);
+
+    taskDescription.classList.add("task-description");
+    taskDescription.addEventListener("focusout", this.editTaskDescription);
+
+    taskDueDate.classList.add("task-due-date");
+    taskDueDate.setAttribute("type", "date");
+    taskDueDate.addEventListener("focusout", this.editTaskDueDate);
+
     taskDeleteButton.classList.add("task-delete");
     taskDeleteIcon.classList.add("task-delete-icon");
-
-    descriptionDiv.classList.add("task-description");
-    dueDateDiv.classList.add("task-due");
 
     const priorityTooltip = document.createElement("span");
     priorityTooltip.textContent = `${task.priority} priority`;
     priorityTooltip.classList.add("tooltiptext");
-    priorityDiv.appendChild(priorityTooltip);
+    taskPriority.appendChild(priorityTooltip);
+
+    taskPrioritySelect.classList.add("task-priority-select");
+    taskPrioritySelect.addEventListener("change", this.editTaskPriority);
+    taskPrioritySelect.textContent = "";
+    taskLowPriorityOption.value = "low";
+    taskLowPriorityOption.textContent = "low";
+    taskMidPriorityOption.value = "medium";
+    taskMidPriorityOption.textContent = "medium";
+    taskHighPriorityOption.value = "high";
+    taskHighPriorityOption.textContent = "high";
+
+    taskPrioritySelect.appendChild(taskLowPriorityOption);
+    taskPrioritySelect.appendChild(taskMidPriorityOption);
+    taskPrioritySelect.appendChild(taskHighPriorityOption);
+    taskPrioritySelect.setAttribute("priority", task.priority);
+
+    for (const selectOption of taskPrioritySelect.children) {
+      if (selectOption.value === task.priority) {
+        selectOption.setAttribute("selected", "selected");
+      }
+    }
 
     const titleWrapper = document.createElement("div");
-    titleWrapper.classList.add("task-wrapper");
-    titleWrapper.appendChild(priorityDiv);
+    titleWrapper.classList.add("title-wrapper");
+    taskPriority.appendChild(taskPrioritySelect);
+    titleWrapper.appendChild(taskPriority);
     titleWrapper.appendChild(taskTitle);
 
-    priorityDiv.classList.add("priority-div");
-    priorityDiv.classList.add(task.priority);
+    taskDescriptionDiv.classList.add("task-description-div");
+    taskDescriptionDiv.appendChild(taskDescription);
+
+    taskPriority.classList.add("priority-div");
+
+    taskDueDateDiv.classList.add("task-due-date-div");
+    taskDueDateDiv.appendChild(taskDueDate);
 
     taskDiv.classList.add("task");
 
-    taskTitle.textContent = task.title;
-    descriptionDiv.textContent = task.description;
-    dueDateDiv.textContent = task.dueDate;
+    taskTitle.value = task.title;
+    taskDescription.value = task.description;
+    taskDueDate.value = task.dueDate;
 
     taskDeleteButton.addEventListener("click", () => {
       const taskIndex = taskDeleteButton.parentElement.dataset.index;
@@ -288,14 +328,69 @@ export default class ScreenController {
     taskDeleteButton.appendChild(taskDeleteIcon);
 
     taskBody.appendChild(titleWrapper);
-    taskBody.appendChild(descriptionDiv);
-    taskBody.appendChild(dueDateDiv);
+    taskBody.appendChild(taskDescriptionDiv);
+    taskBody.appendChild(taskDueDateDiv);
 
     taskDiv.appendChild(taskCheckboxLabel);
     taskDiv.appendChild(taskBody);
     taskDiv.appendChild(taskDeleteButton);
 
     return taskDiv;
+  }
+
+  static editTaskTitle(event) {
+    const currentProject = document.querySelector(".selected");
+    const projectIndex = currentProject.dataset.index;
+    const taskElement = event.target.parentElement.parentElement.parentElement;
+    const taskIndex = taskElement.dataset.index;
+    const newTitle = event.target.value;
+
+    const task = Storage.getTask(projectIndex, taskIndex);
+
+    task.title = newTitle;
+
+    Storage.editTask(projectIndex, taskIndex, task);
+  }
+
+  static editTaskDescription(event) {
+    const currentProject = document.querySelector(".selected");
+    const projectIndex = currentProject.dataset.index;
+    const taskElement = event.target.parentElement.parentElement.parentElement;
+    const taskIndex = taskElement.dataset.index;
+    const newDescription = event.target.value;
+    const task = Storage.getTask(projectIndex, taskIndex);
+
+    task.description = newDescription;
+
+    Storage.editTask(projectIndex, taskIndex, task);
+  }
+
+  static editTaskPriority(event) {
+    const currentProject = document.querySelector(".selected");
+    const projectIndex = currentProject.dataset.index;
+    const taskElement =
+      event.target.parentElement.parentElement.parentElement.parentElement;
+    const taskIndex = taskElement.dataset.index;
+    const task = Storage.getTask(projectIndex, taskIndex);
+    const newPriority = event.target.value;
+
+    task.priority = newPriority;
+
+    event.target.setAttribute("priority", newPriority);
+    Storage.editTask(projectIndex, taskIndex, task);
+  }
+
+  static editTaskDueDate(event) {
+    const currentProject = document.querySelector(".selected");
+    const projectIndex = currentProject.dataset.index;
+    const taskElement = event.target.parentElement.parentElement.parentElement;
+    console.log(taskElement);
+    const taskIndex = taskElement.dataset.index;
+    const task = Storage.getTask(projectIndex, taskIndex);
+    const newDueDate = event.target.value;
+    console.log(typeof newDueDate);
+    task.dueDate = newDueDate;
+    Storage.editTask(projectIndex, taskIndex, task);
   }
 
   static deleteTask(taskIndex) {
