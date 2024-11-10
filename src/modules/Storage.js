@@ -10,6 +10,17 @@ export default class Storage {
     return JSON.parse(localStorage.getItem("projects") || "[]");
   }
 
+  static getSelectedProject() {
+    const projectIndex = this.getProjects().findIndex(
+      (project) => project.isSelected === true
+    );
+    const project = this.getProjects().find(
+      (project) => project.isSelected === true
+    );
+
+    return { project, projectIndex };
+  }
+
   static storeProject(newProject) {
     const projects = this.getProjects();
     projects.push(newProject);
@@ -31,6 +42,7 @@ export default class Storage {
     const projects = this.getProjects();
     projects[projectIndex].tasks.push(newTask);
     localStorage.setItem("projects", JSON.stringify(projects));
+    return this.getProject(projectIndex);
   }
 
   static editTask(projectIndex, taskIndex, editedTask) {
@@ -43,6 +55,7 @@ export default class Storage {
     const projects = this.getProjects();
     projects[projectIndex].tasks.splice(taskIndex, 1);
     localStorage.setItem("projects", JSON.stringify(projects));
+    return this.getProject(projectIndex);
   }
 
   static clearStorage() {

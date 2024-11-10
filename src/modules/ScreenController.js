@@ -5,13 +5,11 @@ import Task from "./Task";
 export default class ScreenController {
   static loadHomepage() {
     this.createDemoProject();
-    this.initAddProjectModal();
-    this.initAddTaskModal();
   }
 
   static createDemoProject() {
     Storage.clearStorage();
-    const demoProject = new Project("New Project");
+    const demoProject = new Project();
     const demoTask1 = new Task(
       "First Task",
       "Task Description",
@@ -33,6 +31,8 @@ export default class ScreenController {
     this.displayProjects();
     const demoProjectDiv = document.querySelector('div[data-index="0"]');
     this.selectProject(demoProjectDiv);
+    this.initAddProjectModal();
+    this.initAddTaskModal();
     this.displayProjectDetail(demoProject);
   }
 
@@ -74,11 +74,16 @@ export default class ScreenController {
   }
 
   static selectProject(selectedProject) {
-    const projects = document.querySelectorAll(".project-div");
-    projects.forEach((project) => {
-      project.classList.remove("selected");
+    const selectedProjectIndex = selectedProject.dataset.index;
+
+    const projects = Storage.getProjects();
+    projects.forEach((project, index) => {
+      project.isSelected = false;
+      Storage.editProject(index, project);
     });
-    selectedProject.classList.toggle("selected");
+    const project = projects[selectedProjectIndex];
+    project.isSelected = true;
+    Storage.editProject(selectedProjectIndex, project);
   }
 
   static initAddProjectModal() {
@@ -170,14 +175,10 @@ export default class ScreenController {
 
     const submitButton = document.querySelector("#taskConfirmBtn");
     submitButton.addEventListener("click", (event) => {
-      const currentProject = document.querySelector(".selected");
-
       event.preventDefault();
       this.storeTask();
       document.getElementById("addTask").reset();
       addTaskDialog.close();
-      const selectedProject = Storage.getProject(currentProject.dataset.index);
-      this.displayProjectDetail(selectedProject);
     });
   }
 
@@ -200,14 +201,13 @@ export default class ScreenController {
     projectTitleDiv.appendChild(projectTitleInput);
     contentDiv.appendChild(projectTitleDiv);
 
-    contentDiv.appendChild(this.createAddButton("task"));
+    contentDiv.appendChild(this.createAddButton());
 
     for (let i in project.tasks) {
       const currentTask = this.createTask(project.tasks[i]);
       currentTask.dataset.index = i;
       projectDetailDiv.appendChild(currentTask);
     }
-
     contentDiv.appendChild(projectDetailDiv);
   }
 
@@ -239,7 +239,7 @@ export default class ScreenController {
   }
 
   static storeTask() {
-    const selectedProject = document.querySelector(".selected");
+    const { project, projectIndex } = Storage.getSelectedProject();
 
     const taskTitleInput = document.querySelector("#task-title");
     const taskDescritpionInput = document.querySelector("#task-desc");
@@ -251,8 +251,8 @@ export default class ScreenController {
       taskDueInput.value,
       taskPriorityInput.value
     );
-    Storage.storeTask(selectedProject.dataset.index, newTask);
-    this.displayProjectDetail(selectedProject);
+    const projectWithNewTask = Storage.storeTask(projectIndex, newTask);
+    this.displayProjectDetail(projectWithNewTask);
   }
 
   static createTask(task) {
@@ -285,10 +285,6 @@ export default class ScreenController {
     taskCheckbox.addEventListener("change", this.editTaskStatus);
 
     taskCheckbox.checked = task.doneStatus;
-    const parentTask = taskCheckbox.parentElement.parentElement;
-    if (taskCheckbox.checked) {
-      parentTask.classList.toggle("task-done");
-    }
 
     taskCheckmark.classList.add("checkmark");
     taskCheckboxLabel.appendChild(taskCheckmark);
@@ -367,15 +363,17 @@ export default class ScreenController {
     taskDiv.appendChild(taskBody);
     taskDiv.appendChild(taskDeleteButton);
 
+    const parentTask = taskCheckbox.parentElement.parentElement;
+    if (task.doneStatus) {
+      parentTask.classList.toggle("task-done");
+    }
+
     return taskDiv;
   }
 
   static editProjectTitle(event) {
-    const currentProject = document.querySelector(".selected");
-    const projectIndex = currentProject.dataset.index;
+    const { project, projectIndex } = Storage.getSelectedProject();
     const newTitle = event.target.value;
-
-    const project = Storage.getProject(projectIndex);
 
     project.title = newTitle;
 
@@ -384,13 +382,11 @@ export default class ScreenController {
   }
 
   static editTaskTitle(event) {
-    const currentProject = document.querySelector(".selected");
-    const projectIndex = currentProject.dataset.index;
+    const { project, projectIndex } = Storage.getSelectedProject();
     const taskElement = event.target.parentElement.parentElement.parentElement;
     const taskIndex = taskElement.dataset.index;
     const newTitle = event.target.value;
-
-    const task = Storage.getTask(projectIndex, taskIndex);
+    const task = project.tasks[taskIndex];
 
     task.title = newTitle;
 
@@ -398,12 +394,11 @@ export default class ScreenController {
   }
 
   static editTaskDescription(event) {
-    const currentProject = document.querySelector(".selected");
-    const projectIndex = currentProject.dataset.index;
+    const { project, projectIndex } = Storage.getSelectedProject();
     const taskElement = event.target.parentElement.parentElement.parentElement;
     const taskIndex = taskElement.dataset.index;
     const newDescription = event.target.value;
-    const task = Storage.getTask(projectIndex, taskIndex);
+    const task = project.tasks[taskIndex];
 
     task.description = newDescription;
 
@@ -411,12 +406,11 @@ export default class ScreenController {
   }
 
   static editTaskPriority(event) {
-    const currentProject = document.querySelector(".selected");
-    const projectIndex = currentProject.dataset.index;
+    const { project, projectIndex } = Storage.getSelectedProject();
     const taskElement =
       event.target.parentElement.parentElement.parentElement.parentElement;
     const taskIndex = taskElement.dataset.index;
-    const task = Storage.getTask(projectIndex, taskIndex);
+    const task = project.tasks[taskIndex];
     const newPriority = event.target.value;
 
     task.priority = newPriority;
@@ -426,24 +420,22 @@ export default class ScreenController {
   }
 
   static editTaskDueDate(event) {
-    const currentProject = document.querySelector(".selected");
-    const projectIndex = currentProject.dataset.index;
+    const { project, projectIndex } = Storage.getSelectedProject();
     const taskElement = event.target.parentElement.parentElement.parentElement;
     const taskIndex = taskElement.dataset.index;
-    const task = Storage.getTask(projectIndex, taskIndex);
+    const task = project.tasks[taskIndex];
     const newDueDate = event.target.value;
-    console.log(typeof newDueDate);
+
     task.dueDate = newDueDate;
     Storage.editTask(projectIndex, taskIndex, task);
   }
 
   static editTaskStatus(event) {
-    const currentProject = document.querySelector(".selected");
-    const projectIndex = currentProject.dataset.index;
+    const { project, projectIndex } = Storage.getSelectedProject();
     const taskElement = event.target.parentElement.parentElement;
     const taskIndex = taskElement.dataset.index;
 
-    const task = Storage.getTask(projectIndex, taskIndex);
+    const task = project.tasks[taskIndex];
     task.doneStatus = !task.doneStatus;
     if (task.doneStatus) {
       event.target.checked = true;
@@ -455,10 +447,7 @@ export default class ScreenController {
   }
 
   static deleteTask(taskIndex) {
-    const currentProject = document.querySelector(".selected");
-    const projectIndex = currentProject.dataset.index;
-
-    Storage.deleteTask(projectIndex, taskIndex);
-    this.displayProjectDetail(Storage.getProject(projectIndex));
+    const { project, projectIndex } = Storage.getSelectedProject();
+    this.displayProjectDetail(Storage.deleteTask(projectIndex, taskIndex));
   }
 }

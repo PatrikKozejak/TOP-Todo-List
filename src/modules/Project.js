@@ -1,7 +1,8 @@
 export default class Project {
-  constructor(title = "New Project") {
+  constructor(title = "New Project", isSelected = false) {
     this.title = title;
     this.tasks = [];
+    this.isSelected = isSelected;
   }
 
   static getTitle() {
