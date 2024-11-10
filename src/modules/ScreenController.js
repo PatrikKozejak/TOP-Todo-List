@@ -78,7 +78,7 @@ export default class ScreenController {
     projects.forEach((project) => {
       project.classList.remove("selected");
     });
-    selectedProject.classList.add("selected");
+    selectedProject.classList.toggle("selected");
   }
 
   static initAddProjectModal() {
@@ -238,10 +238,6 @@ export default class ScreenController {
     return addTaskButton;
   }
 
-  // static selectProject(projectIndex) {
-  //   const projectToSelect = document.querySelector("div");
-  // }
-
   static storeTask() {
     const selectedProject = document.querySelector(".selected");
 
@@ -286,14 +282,13 @@ export default class ScreenController {
     taskCheckbox.setAttribute("type", "checkbox");
     taskCheckbox.classList.add("task-done");
 
-    taskCheckbox.addEventListener("change", () => {
-      const parentTask = taskCheckbox.parentElement.parentElement;
-      if (taskCheckbox.checked) {
-        parentTask.classList.add("task-done");
-      } else {
-        parentTask.classList.remove("task-done");
-      }
-    });
+    taskCheckbox.addEventListener("change", this.editTaskStatus);
+
+    taskCheckbox.checked = task.doneStatus;
+    const parentTask = taskCheckbox.parentElement.parentElement;
+    if (taskCheckbox.checked) {
+      parentTask.classList.toggle("task-done");
+    }
 
     taskCheckmark.classList.add("checkmark");
     taskCheckboxLabel.appendChild(taskCheckmark);
@@ -434,12 +429,28 @@ export default class ScreenController {
     const currentProject = document.querySelector(".selected");
     const projectIndex = currentProject.dataset.index;
     const taskElement = event.target.parentElement.parentElement.parentElement;
-    console.log(taskElement);
     const taskIndex = taskElement.dataset.index;
     const task = Storage.getTask(projectIndex, taskIndex);
     const newDueDate = event.target.value;
     console.log(typeof newDueDate);
     task.dueDate = newDueDate;
+    Storage.editTask(projectIndex, taskIndex, task);
+  }
+
+  static editTaskStatus(event) {
+    const currentProject = document.querySelector(".selected");
+    const projectIndex = currentProject.dataset.index;
+    const taskElement = event.target.parentElement.parentElement;
+    const taskIndex = taskElement.dataset.index;
+
+    const task = Storage.getTask(projectIndex, taskIndex);
+    task.doneStatus = !task.doneStatus;
+    if (task.doneStatus) {
+      event.target.checked = true;
+    } else {
+      event.target.checked = false;
+    }
+    taskElement.classList.toggle("task-done");
     Storage.editTask(projectIndex, taskIndex, task);
   }
 
