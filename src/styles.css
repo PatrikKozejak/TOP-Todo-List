@@ -73,7 +73,7 @@ ul {
 }
 
 :root {
-  --side-bar-main-color: #f0e8d1;
+  --side-bar-main-color: #f9e0d9;
   --text-main-color: #0d1b1e;
   --text-accent-color: #f05d23;
 }
@@ -284,6 +284,14 @@ select[priority="low"] {
   border: none;
 }
 
+#project-title,
+#task-title,
+#task-desc,
+#task-prio,
+#task-due {
+  border: none;
+}
+
 .task-title {
   height: 28px;
 }
@@ -319,8 +327,21 @@ select[priority="low"] {
 .task-title:focus,
 .task-description:focus,
 .task-due-date:focus,
-.task-priority-select:focus {
+.task-priority-select:focus,
+#project-title,
+#task-title,
+#task-desc,
+#task-prio,
+#task-due {
   outline: 1px #00000050 solid;
+}
+
+#project-title:focus,
+#task-title:focus,
+#task-desc:focus,
+#task-prio:focus,
+#task-due:focus {
+  outline: 2px #00000080 solid;
 }
 
 .task-add-button-div {

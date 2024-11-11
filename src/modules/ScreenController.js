@@ -94,7 +94,7 @@ export default class ScreenController {
       <form id="addProject"> 
           <label>
             Project name
-          <input id="project-name" required></input>
+          <input id="project-title" required></input>
           </label>
         <div>
           <button class="add-project-cancel-btn" type="reset" value="cancel" formmethod="dialog">Cancel</button>
@@ -213,7 +213,7 @@ export default class ScreenController {
   }
 
   static createProject() {
-    const projectTitleInput = document.querySelector("#project-name");
+    const projectTitleInput = document.querySelector("#project-title");
     const newProject = new Project(projectTitleInput.value);
     Storage.storeProject(newProject);
   }
