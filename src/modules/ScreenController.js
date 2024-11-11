@@ -1,5 +1,6 @@
 import Project from "./Project";
 import Storage from "./Storage";
+import { formatDistanceToNow, isPast } from "date-fns";
 import Task from "./Task";
 
 export default class ScreenController {
@@ -266,6 +267,7 @@ export default class ScreenController {
     const taskDescription = document.createElement("input");
     const taskDueDateDiv = document.createElement("div");
     const taskDueDate = document.createElement("input");
+    const taskDueDateDistance = document.createElement("div");
     const taskPriority = document.createElement("div");
     const taskPrioritySelect = document.createElement("select");
     const taskLowPriorityOption = document.createElement("option");
@@ -298,6 +300,9 @@ export default class ScreenController {
     taskDueDate.classList.add("task-due-date");
     taskDueDate.setAttribute("type", "date");
     taskDueDate.addEventListener("focusout", this.editTaskDueDate);
+    taskDueDate.addEventListener("change", this.updateDistanceTime.bind(this));
+
+    taskDueDateDistance.classList.add("task-due-date-distance");
 
     taskDeleteButton.classList.add("task-delete");
     taskDeleteIcon.classList.add("task-delete-icon");
@@ -341,12 +346,14 @@ export default class ScreenController {
 
     taskDueDateDiv.classList.add("task-due-date-div");
     taskDueDateDiv.appendChild(taskDueDate);
+    taskDueDateDiv.appendChild(taskDueDateDistance);
 
     taskDiv.classList.add("task");
 
     taskTitle.value = task.title;
     taskDescription.value = task.description;
     taskDueDate.value = task.dueDate;
+    taskDueDateDistance.textContent = this.determineTimeLeft(task.dueDate);
 
     taskDeleteButton.addEventListener("click", () => {
       const taskIndex = taskDeleteButton.parentElement.dataset.index;
@@ -449,5 +456,19 @@ export default class ScreenController {
   static deleteTask(taskIndex) {
     const { project, projectIndex } = Storage.getSelectedProject();
     this.displayProjectDetail(Storage.deleteTask(projectIndex, taskIndex));
+  }
+
+  static determineTimeLeft(dueDate) {
+    if (isPast(dueDate)) {
+      return `${formatDistanceToNow(dueDate)} ago`;
+    } else {
+      return `${formatDistanceToNow(dueDate)} left`;
+    }
+  }
+
+  static updateDistanceTime(event) {
+    const newDate = event.target.value;
+    const distanceTimeDiv = event.target.nextElementSibling;
+    distanceTimeDiv.textContent = this.determineTimeLeft(newDate);
   }
 }

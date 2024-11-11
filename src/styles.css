@@ -231,11 +231,6 @@ select option:hover {
   margin-bottom: 4px;
 }
 
-.task-description,
-.task-due-date {
-  font-size: 20px;
-}
-
 .detail-title {
   font-size: 32px;
   font-weight: 700;
@@ -295,6 +290,7 @@ select[priority="low"] {
 
 .task-description,
 .task-due-date {
+  font-size: 20px;
   height: 24px;
 }
 
@@ -483,8 +479,13 @@ select[priority="low"] {
 }
 
 .task-description,
-.task-due-date {
+.task-due-date,
+.task-due-date-distance {
   color: #00000090;
+}
+
+.task-due-date-distance {
+  font-size: 14px;
 }
 
 .task-done .task-title,
